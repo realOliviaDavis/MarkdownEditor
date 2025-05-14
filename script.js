@@ -5,6 +5,7 @@ class MarkdownEditor {
         this.loadBtn = document.getElementById('loadBtn');
         this.saveBtn = document.getElementById('saveBtn');
         this.exportBtn = document.getElementById('exportBtn');
+        this.themeBtn = document.getElementById('themeBtn');
         
         this.init();
     }
@@ -14,6 +15,7 @@ class MarkdownEditor {
         this.loadBtn.addEventListener('click', () => this.loadFile());
         this.saveBtn.addEventListener('click', () => this.saveFile());
         this.exportBtn.addEventListener('click', () => this.exportHTML());
+        this.themeBtn.addEventListener('click', () => this.toggleTheme());
         
         this.updatePreview();
     }
@@ -105,8 +107,24 @@ ${this.preview.innerHTML}
         a.click();
         URL.revokeObjectURL(url);
     }
+    
+    toggleTheme() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        this.themeBtn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode', isDark);
+    }
+    
+    loadTheme() {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+            document.body.classList.add('dark');
+            this.themeBtn.textContent = '☀️';
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new MarkdownEditor();
+    const editor = new MarkdownEditor();
+    editor.loadTheme();
 });
