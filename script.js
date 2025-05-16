@@ -17,6 +17,9 @@ class MarkdownEditor {
         this.exportBtn.addEventListener('click', () => this.exportHTML());
         this.themeBtn.addEventListener('click', () => this.toggleTheme());
         
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+        
         this.updatePreview();
     }
     
@@ -24,11 +27,19 @@ class MarkdownEditor {
         const markdown = this.input.value;
         const html = this.parseMarkdown(markdown);
         this.preview.innerHTML = html;
+        
+        // Apply syntax highlighting
+        this.preview.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
     }
     
     parseMarkdown(markdown) {
         let html = markdown
-            .replace(/^```([\s\S]*?)```$/gm, '<pre><code>$1</code></pre>')
+            .replace(/^```(\w+)?\n([\s\S]*?)```$/gm, (match, lang, code) => {
+                const language = lang || '';
+                return `<pre><code class="language-${language}">${code.trim()}</code></pre>`;
+            })
             .replace(/^### (.*$)/gim, '<h3>$1</h3>')
             .replace(/^## (.*$)/gim, '<h2>$1</h2>')
             .replace(/^# (.*$)/gim, '<h1>$1</h1>')
@@ -120,6 +131,43 @@ ${this.preview.innerHTML}
         if (isDark) {
             document.body.classList.add('dark');
             this.themeBtn.textContent = '☀️';
+        }
+    }
+    
+    handleKeyboardShortcuts(e) {
+        // Ctrl/Cmd + S: Save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            this.saveFile();
+        }
+        
+        // Ctrl/Cmd + O: Open/Load
+        if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+            e.preventDefault();
+            this.loadFile();
+        }
+        
+        // Ctrl/Cmd + E: Export
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+            e.preventDefault();
+            this.exportHTML();
+        }
+        
+        // Ctrl/Cmd + D: Toggle theme
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+            e.preventDefault();
+            this.toggleTheme();
+        }
+        
+        // Tab: Insert tab character
+        if (e.key === 'Tab' && e.target === this.input) {
+            e.preventDefault();
+            const start = this.input.selectionStart;
+            const end = this.input.selectionEnd;
+            const value = this.input.value;
+            this.input.value = value.substring(0, start) + '\t' + value.substring(end);
+            this.input.selectionStart = this.input.selectionEnd = start + 1;
+            this.updatePreview();
         }
     }
 }
