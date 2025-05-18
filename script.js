@@ -6,6 +6,7 @@ class MarkdownEditor {
         this.saveBtn = document.getElementById('saveBtn');
         this.exportBtn = document.getElementById('exportBtn');
         this.themeBtn = document.getElementById('themeBtn');
+        this.autoSaveInterval = null;
         
         this.init();
     }
@@ -19,6 +20,10 @@ class MarkdownEditor {
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+        
+        // Auto-save functionality
+        this.startAutoSave();
+        this.loadAutoSave();
         
         this.updatePreview();
     }
@@ -169,6 +174,37 @@ ${this.preview.innerHTML}
             this.input.selectionStart = this.input.selectionEnd = start + 1;
             this.updatePreview();
         }
+    }
+    
+    startAutoSave() {
+        this.autoSaveInterval = setInterval(() => {
+            const content = this.input.value;
+            if (content.trim()) {
+                localStorage.setItem('autoSaveContent', content);
+                localStorage.setItem('autoSaveTimestamp', Date.now().toString());
+            }
+        }, 30000); // Auto-save every 30 seconds
+    }
+    
+    loadAutoSave() {
+        const savedContent = localStorage.getItem('autoSaveContent');
+        const timestamp = localStorage.getItem('autoSaveTimestamp');
+        
+        if (savedContent && timestamp) {
+            const savedTime = new Date(parseInt(timestamp));
+            const now = new Date();
+            const timeDiff = (now - savedTime) / (1000 * 60); // minutes
+            
+            if (timeDiff < 60 && savedContent.trim()) { // Only load if saved within last hour
+                this.input.value = savedContent;
+                this.updatePreview();
+            }
+        }
+    }
+    
+    clearAutoSave() {
+        localStorage.removeItem('autoSaveContent');
+        localStorage.removeItem('autoSaveTimestamp');
     }
 }
 
