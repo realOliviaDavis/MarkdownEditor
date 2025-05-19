@@ -6,13 +6,17 @@ class MarkdownEditor {
         this.saveBtn = document.getElementById('saveBtn');
         this.exportBtn = document.getElementById('exportBtn');
         this.themeBtn = document.getElementById('themeBtn');
+        this.wordCount = document.getElementById('wordCount');
         this.autoSaveInterval = null;
         
         this.init();
     }
     
     init() {
-        this.input.addEventListener('input', () => this.updatePreview());
+        this.input.addEventListener('input', () => {
+            this.updatePreview();
+            this.updateWordCount();
+        });
         this.loadBtn.addEventListener('click', () => this.loadFile());
         this.saveBtn.addEventListener('click', () => this.saveFile());
         this.exportBtn.addEventListener('click', () => this.exportHTML());
@@ -26,6 +30,7 @@ class MarkdownEditor {
         this.loadAutoSave();
         
         this.updatePreview();
+        this.updateWordCount();
     }
     
     updatePreview() {
@@ -205,6 +210,13 @@ ${this.preview.innerHTML}
     clearAutoSave() {
         localStorage.removeItem('autoSaveContent');
         localStorage.removeItem('autoSaveTimestamp');
+    }
+    
+    updateWordCount() {
+        const text = this.input.value;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const characters = text.length;
+        this.wordCount.textContent = `Words: ${words} | Characters: ${characters}`;
     }
 }
 
