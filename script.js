@@ -6,6 +6,7 @@ class MarkdownEditor {
         this.saveBtn = document.getElementById('saveBtn');
         this.exportBtn = document.getElementById('exportBtn');
         this.themeBtn = document.getElementById('themeBtn');
+        this.fullscreenBtn = document.getElementById('fullscreenBtn');
         this.wordCount = document.getElementById('wordCount');
         this.autoSaveInterval = null;
         
@@ -21,6 +22,7 @@ class MarkdownEditor {
         this.saveBtn.addEventListener('click', () => this.saveFile());
         this.exportBtn.addEventListener('click', () => this.exportHTML());
         this.themeBtn.addEventListener('click', () => this.toggleTheme());
+        this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
@@ -169,6 +171,12 @@ ${this.preview.innerHTML}
             this.toggleTheme();
         }
         
+        // F11: Toggle fullscreen
+        if (e.key === 'F11') {
+            e.preventDefault();
+            this.toggleFullscreen();
+        }
+        
         // Tab: Insert tab character
         if (e.key === 'Tab' && e.target === this.input) {
             e.preventDefault();
@@ -217,6 +225,19 @@ ${this.preview.innerHTML}
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         const characters = text.length;
         this.wordCount.textContent = `Words: ${words} | Characters: ${characters}`;
+    }
+    
+    toggleFullscreen() {
+        const container = document.querySelector('.container');
+        const isFullscreen = container.classList.contains('fullscreen');
+        
+        if (isFullscreen) {
+            container.classList.remove('fullscreen');
+            this.fullscreenBtn.textContent = '⛶';
+        } else {
+            container.classList.add('fullscreen');
+            this.fullscreenBtn.textContent = '🗗';
+        }
     }
 }
 

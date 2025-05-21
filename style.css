@@ -54,6 +54,21 @@ body.dark #preview pre {
     background: #404040;
 }
 
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    z-index: 9999;
+    background: #f5f5f5;
+}
+
+.fullscreen.dark {
+    background: #1a1a1a;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
