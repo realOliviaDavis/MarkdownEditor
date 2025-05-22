@@ -47,7 +47,12 @@ class MarkdownEditor {
     }
     
     parseMarkdown(markdown) {
-        let html = markdown
+        let html = markdown;
+        
+        // Handle tables
+        html = this.parseTables(html);
+        
+        html = html
             .replace(/^```(\w+)?\n([\s\S]*?)```$/gm, (match, lang, code) => {
                 const language = lang || '';
                 return `<pre><code class="language-${language}">${code.trim()}</code></pre>`;
@@ -73,6 +78,43 @@ class MarkdownEditor {
         html = html.replace(/<\/ol><br><ol>/g, '');
         
         return html;
+    }
+    
+    parseTables(markdown) {
+        const tableRegex = /^(\|.*\|)\n(\|[-:\s|]*\|)\n((.*\|.*\n?)*)/gm;
+        
+        return markdown.replace(tableRegex, (match, header, separator, rows) => {
+            const headerCells = header.split('|').slice(1, -1).map(cell => cell.trim());
+            const alignments = separator.split('|').slice(1, -1).map(cell => {
+                const trimmed = cell.trim();
+                if (trimmed.startsWith(':') && trimmed.endsWith(':')) return 'center';
+                if (trimmed.endsWith(':')) return 'right';
+                return 'left';
+            });
+            
+            let tableHtml = '<table>\n<thead>\n<tr>';
+            headerCells.forEach((cell, index) => {
+                const align = alignments[index] ? ` style="text-align: ${alignments[index]}"` : '';
+                tableHtml += `<th${align}>${cell}</th>`;
+            });
+            tableHtml += '</tr>\n</thead>\n<tbody>\n';
+            
+            const rowArray = rows.trim().split('\n');
+            rowArray.forEach(row => {
+                if (row.trim()) {
+                    const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
+                    tableHtml += '<tr>';
+                    cells.forEach((cell, index) => {
+                        const align = alignments[index] ? ` style="text-align: ${alignments[index]}"` : '';
+                        tableHtml += `<td${align}>${cell}</td>`;
+                    });
+                    tableHtml += '</tr>\n';
+                }
+            });
+            
+            tableHtml += '</tbody>\n</table>';
+            return tableHtml;
+        });
     }
     
     loadFile() {
