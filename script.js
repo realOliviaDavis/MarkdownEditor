@@ -31,6 +31,9 @@ class MarkdownEditor {
         this.startAutoSave();
         this.loadAutoSave();
         
+        // Scroll sync
+        this.input.addEventListener('scroll', () => this.syncScroll());
+        
         this.updatePreview();
         this.updateWordCount();
     }
@@ -280,6 +283,12 @@ ${this.preview.innerHTML}
             container.classList.add('fullscreen');
             this.fullscreenBtn.textContent = '🗗';
         }
+    }
+    
+    syncScroll() {
+        const scrollPercentage = this.input.scrollTop / (this.input.scrollHeight - this.input.clientHeight);
+        const previewScrollTop = scrollPercentage * (this.preview.scrollHeight - this.preview.clientHeight);
+        this.preview.scrollTop = previewScrollTop;
     }
 }
 
