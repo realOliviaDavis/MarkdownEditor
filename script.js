@@ -7,6 +7,7 @@ class MarkdownEditor {
         this.exportBtn = document.getElementById('exportBtn');
         this.themeBtn = document.getElementById('themeBtn');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
+        this.copyBtn = document.getElementById('copyBtn');
         this.wordCount = document.getElementById('wordCount');
         this.autoSaveInterval = null;
         
@@ -23,6 +24,7 @@ class MarkdownEditor {
         this.exportBtn.addEventListener('click', () => this.exportHTML());
         this.themeBtn.addEventListener('click', () => this.toggleTheme());
         this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+        this.copyBtn.addEventListener('click', () => this.copyToClipboard());
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
@@ -289,6 +291,38 @@ ${this.preview.innerHTML}
         const scrollPercentage = this.input.scrollTop / (this.input.scrollHeight - this.input.clientHeight);
         const previewScrollTop = scrollPercentage * (this.preview.scrollHeight - this.preview.clientHeight);
         this.preview.scrollTop = previewScrollTop;
+    }
+    
+    async copyToClipboard() {
+        try {
+            const htmlContent = this.preview.innerHTML;
+            
+            // Create a temporary element to copy HTML to clipboard
+            const blob = new ClipboardItem({
+                'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                'text/plain': new Blob([this.input.value], { type: 'text/plain' })
+            });
+            
+            await navigator.clipboard.write([blob]);
+            
+            // Visual feedback
+            this.copyBtn.textContent = '✓';
+            setTimeout(() => {
+                this.copyBtn.textContent = '📋';
+            }, 1000);
+            
+        } catch (err) {
+            // Fallback for older browsers
+            try {
+                await navigator.clipboard.writeText(this.input.value);
+                this.copyBtn.textContent = '✓';
+                setTimeout(() => {
+                    this.copyBtn.textContent = '📋';
+                }, 1000);
+            } catch (fallbackErr) {
+                console.error('Copy failed:', fallbackErr);
+            }
+        }
     }
 }
 
